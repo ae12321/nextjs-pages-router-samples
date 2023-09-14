@@ -1,7 +1,32 @@
-export default function Home() {
+import Head from "next/head";
+import { getMyPosts } from "../lib/notion";
+import Post from "@/components/Post";
+
+export async function getStaticProps() {
+  const posts = await getMyPosts();
+  return {
+    props: {
+      posts,
+    },
+    revalidate: 10,
+  };
+}
+
+export default function Home({ posts }: { posts: MyPost[] }) {
+  console.log(posts);
   return (
-    <main>
-      <h1 className="text-center my-4 underline">hello, world</h1>
-    </main>
+    <div className="container w-full h-full mx-auto">
+      <Head>
+        <title>notion-blog</title>
+        <meta name="description" content="aaa" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <main className="container w-full">
+        <h1 className="text-2xl text-center w-full">hello, world</h1>
+        {posts.map((post) => (
+          <Post key={post.id} post={post} />
+        ))}
+      </main>
+    </div>
   );
 }
