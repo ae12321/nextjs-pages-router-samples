@@ -1,13 +1,13 @@
-import { getMyPost } from "@/lib/notion";
+import { getMyPost, getMyPostDetail, getMyPosts } from "@/lib/notion";
+import { spawn } from "child_process";
 import React from "react";
 
 export async function getStaticPaths() {
+  const posts = await getMyPosts();
+  const paths = posts.map(({ id }) => ({ params: { postId: id } }));
+
   return {
-    paths: [
-      { params: { postId: "2b6fa022-a65e-4a7d-b8e3-cfc1f05c425a" } },
-      { params: { postId: "59455f49-f0ea-4adb-a2f3-45747fe7338e" } },
-      { params: { postId: "03b170bf-f6b6-4f19-aeb8-f3e86dc48120" } },
-    ],
+    paths,
     fallback: "blocking",
   };
 }
@@ -18,22 +18,32 @@ export async function getStaticProps({
   params: { postId: string };
 }) {
   const post = await getMyPost(params.postId);
+  const detail = await getMyPostDetail(params.postId);
   return {
     props: {
       post,
+      detail,
     },
     revalidate: 10,
   };
 }
 
-export default function PostDetail(props: { posts: number }) {
+export default function PostDetail(props: { post: MyPost; detail: string }) {
   return (
     <section className="container mt-10 p-4">
-      <p className="text-3xl underline font-bold">this is title</p>
-      <p className="mb-4">2023-2010</p>
-      <span className="bg-gray-500 rounded p-1 mr-1">aaa</span>
+      <p className="text-3xl underline font-bold">{props.post.title}</p>
+      <p className="mb-4">{props.post.createdAt}</p>
+      <div className="">
+        {props.post.tags.map((tag, index) => (
+          <span key={index} className="bg-gray-500 rounded p-1 mr-1">
+            {tag}
+          </span>
+        ))}
+      </div>
 
-      <div className="mt-10">asdfasdf asdfasdf</div>
+      <div className="mt-10">{props.post.description}</div>
+
+      <div>{props.detail}</div>
     </section>
   );
 }

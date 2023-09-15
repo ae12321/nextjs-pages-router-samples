@@ -8,10 +8,13 @@ import {
 } from "@notionhq/client/build/src/api-endpoints";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
+import { NotionToMarkdown } from "notion-to-md";
 
 const notion = new Client({
   auth: NOTION_TOKEN,
 });
+
+const n2m = new NotionToMarkdown({ notionClient: notion });
 
 function getMetadata(page: PageObjectResponse): MyPost {
   const id = page.id;
@@ -97,5 +100,17 @@ export async function getMyPost(postId: string) {
   })) as PageObjectResponse;
 
   const post = getMetadata(page);
+
+  const blocks = await n2m.pageToMarkdown(post.id);
+  const mdString = n2m.toMarkdownString(blocks);
+  console.log(mdString);
+
   return post;
+}
+
+export async function getMyPostDetail(postId: string) {
+  const blocks = await n2m.pageToMarkdown(postId);
+  const { parent } = n2m.toMarkdownString(blocks);
+
+  return parent;
 }
