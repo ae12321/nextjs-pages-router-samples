@@ -10,6 +10,8 @@ import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import { NotionToMarkdown } from "notion-to-md";
 
+export const PAGE_SIZE = 4;
+
 const notion = new Client({
   auth: NOTION_TOKEN,
 });
@@ -113,4 +115,21 @@ export async function getMyPostDetail(postId: string) {
   const { parent } = n2m.toMarkdownString(blocks);
 
   return parent;
+}
+
+export async function getMyPostsForTopPage(pageSize = PAGE_SIZE) {
+  const posts = await getMyPosts();
+  const filtered = posts.slice(0, pageSize);
+  return filtered;
+}
+
+export async function getMyPostsWithPagenation(pageNumber: number) {
+  // とりあえずまずはすべての記事を引っ張り加工する
+  const posts = await getMyPosts();
+
+  const start = (pageNumber - 1) * PAGE_SIZE;
+  const end = start + PAGE_SIZE;
+
+  const filtered = posts.slice(start, end);
+  return filtered;
 }

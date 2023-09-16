@@ -1,9 +1,9 @@
 import Head from "next/head";
-import { getMyPosts } from "../lib/notion";
+import { getMyPosts, getMyPostsForTopPage } from "../lib/notion";
 import Post from "@/components/Post";
 
 export async function getStaticProps() {
-  const posts = await getMyPosts();
+  const posts = await getMyPostsForTopPage(5);
   return {
     props: {
       posts,
